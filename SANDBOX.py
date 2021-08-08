@@ -41,7 +41,9 @@ def pdf_to_png(filepath):
 #     curImg = cv2.resize(curImg,(32,32))
 #     print(curImg.shape)
 
-curImg = cv2.imread('learn_data/letters_a/'+'a_7.png')
-curImg = cv2.imdecode(np.fromfile('learn_data/letters_б/'+'б_103.png', dtype=np.uint8), cv2.IMREAD_UNCHANGED)
-curImg = cv2.resize(curImg,(32,32))
-print(curImg.shape)
+# curImg = cv2.imread('learn_data/letters_a/'+'a_7.png')
+# curImg = cv2.imdecode(np.fromfile('learn_data/letters_б/'+'б_103.png', dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+# curImg = cv2.resize(curImg,(32,32))
+# print(curImg.shape)
+
+print(ord('~'))
