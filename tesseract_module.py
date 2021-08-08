@@ -1,13 +1,25 @@
-import cv2
-import os
-import fitz
-import shutil
+import cv2, os, fitz, shutil
 import numpy as np
 from PIL import Image
 from pytesseract import pytesseract
+from PIL import UnidentifiedImageError
 
 pytesseract.tesseract_cmd = 'C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe'
 config = r'--oem 3 --psm'
+
+
+# Возвращает путь к картинке, созданной на основе 1 СТРАНИЦЫ pdf файла
+# На входе требуется название pdf файла
+def pdf_to_png(filename):
+    doc = fitz.open('pdf_files\{}'.format(filename))
+    zoom = 4  # zoom factor (влияет на качество получаемого из pdf изображения png)
+    page = doc.loadPage(0)
+    mat = fitz.Matrix(zoom, zoom)
+    pix = page.getPixmap(matrix=mat)
+    new_filename = filename.replace('pdf', 'png')
+    pix.writePNG('photo_files\{}'.format(new_filename))
+    return new_filename
+
 
 # i  в аргументах - номер итерации, чтобы вырезанных символов не пересекались
 def create_learn_base(filename, language, i):  # Создает папки с вырезанными распознанными символами в папке learn_data
@@ -41,17 +53,14 @@ def create_learn_base(filename, language, i):  # Создает папки с в
             pass
     return i
 
-# Возвращает путь к картинке, созданной на основе 1 СТРАНИЦЫ pdf файла
-# На входе требуется название pdf файла
-def pdf_to_png(filename):
-    doc = fitz.open('pdf_files\{}'.format(filename))
-    zoom = 4  # zoom factor (влияет на качество получаемого из pdf изображения png)
-    page = doc.loadPage(0)
-    mat = fitz.Matrix(zoom, zoom)
-    pix = page.getPixmap(matrix=mat)
-    new_filename = filename.replace('pdf', 'png')
-    pix.writePNG('photo_files\{}'.format(new_filename))
-    return new_filename
+
+def fix_dir_bugs():
+    for the_dir in os.listdir('learn_data'):
+        for the_file in os.listdir('learn_data/'+the_dir):
+            try:
+                Image.open('learn_data/'+the_dir+'/'+the_file)
+            except OSError:
+                os.remove('learn_data/'+the_dir+'/'+the_file)
 
 
 def clear_directory(directory):
@@ -59,15 +68,25 @@ def clear_directory(directory):
     os.makedirs(directory)
 
 
-# clear_directory('learn_data')
+clear_directory('learn_data')
 
-# for the_file in os.listdir('pdf_files'):
-#     #print(the_file)
-#     filename = the_file
-#     png_filename = pdf_to_png(filename)
-#     #print(png_filename)
+
+for the_file in os.listdir('pdf_files'):
+    filename = the_file
+    png_filename = pdf_to_png(filename)
 
 i = 0
 for the_file in os.listdir('photo_files'):
     i += create_learn_base(the_file, 'rus', i)
-    # print(i)
+
+fix_dir_bugs()
+############# РУЧНАЯ ПРОВЕРКА #############
+
+
+# Image.open('renamed_learn_data/26/C_591.PNG')
+# fix_dir_bugs()
+
+# try:
+#     Image.open('renamed_learn_data/26/C_591.PNG')
+# except OSError:
+#     os.remove('renamed_learn_data/26/C_591.PNG')
